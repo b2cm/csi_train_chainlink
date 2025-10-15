@@ -1,4 +1,4 @@
-# train-chainlink
+# csi_train_chainlink
 
 This repository contains Chainlink oracle infrastructure for the train delay protection prototype. It demonstrates how blockchain oracles can be used to fetch and provide external data to smart contracts. Additionally, it includes a small test integration with Gelato for automation purposes.
 
