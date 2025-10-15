@@ -1,0 +1,38 @@
+pragma solidity ^0.8.0;
+interface IStatusContract {
+  function KEEPER_OFFSET (  ) external view returns ( uint256 );
+  function addRoleToAccount ( address _address, bytes32 _role ) external;
+  function cancelRequest ( bytes32 _requestId, uint256 _payment, bytes4 _callbackFunctionId, uint256 _expiration ) external;
+  function checkUpkeep ( bytes calldata ) external view returns ( bool upkeepNeeded, bytes memory performData );
+  function cleanRolesForAccount ( address _address ) external;
+  function createRole ( bytes32 _role ) external;
+  function executeQueuedRequests ( uint256[] memory _gifRequestIds ) external;
+  function fulfill ( bytes32 _chainlinkRequestId, uint256 _delay ) external;
+  function getChainlinkOracle (  ) external view returns ( address );
+  function getChainlinkToken (  ) external view returns ( address );
+  function getId (  ) external view returns ( uint256 );
+  function getScheduleLength ( uint256 _key ) external view returns ( uint256 );
+  function hasRole ( address _address, bytes32 _role ) external view returns ( bool _hasRole );
+  function isQueuedRequest ( uint256 ) external view returns ( bool );
+  function jobId (  ) external view returns ( bytes32 );
+  function lastQueuedRequest (  ) external view returns ( uint256 );
+  function oracleId (  ) external view returns ( uint256 );
+  function oracleOwnerService (  ) external view returns ( address );
+  function oracleService (  ) external view returns ( address );
+  function owner (  ) external view returns ( address );
+  function payment (  ) external view returns ( uint256 );
+  function performUpkeep ( bytes calldata performData ) external;
+  function permissions ( address ) external view returns ( uint256 );
+  function queuedRequests ( uint256 ) external view returns ( uint256 executionTime, string memory journey );
+  function registryAccess (  ) external view returns ( address );
+  function renounceOwnership (  ) external;
+  function request ( uint256 _gifRequestId, bytes memory _input ) external;
+  function requests ( bytes32 ) external view returns ( uint256 );
+  function roles ( bytes32 ) external view returns ( uint256 );
+  function rolesKeys ( uint256 ) external view returns ( bytes32 );
+  function roundOffOffset ( uint256 _time ) external pure returns ( uint256 );
+  function schedule ( uint256, uint256 ) external view returns ( uint256 );
+  function transferOwnership ( address newOwner ) external;
+  function updateRequestDetails ( address _oracle, bytes32 _jobId, uint256 _payment ) external;
+  function withdrawLink (  ) external;
+}

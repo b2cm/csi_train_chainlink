@@ -1,0 +1,30 @@
+type = "directrequest"
+schemaVersion = 1
+name = "train-mvp-probability-status"
+contractAddress = "0x4a82D5B73f22bF09AeCBA78c206ccb858E41f4b2"
+maxTaskDuration = "0s"
+observationSource = """
+decode_log   [
+type="ethabidecodelog" abi="OracleRequest(bytes32 indexed specId, address requester, bytes32 requestId, uint256 payment, address callbackAddr, bytes4 callbackFunctionId, uint256 cancelExpiration, uint256 dataVersion, bytes data)"
+data="$(jobRun.logData)"
+topics="$(jobRun.logTopics)"
+]
+decode_cbor  [type="cborparse" data="$(decode_log.data)"]
+fetch [
+type="bridge"
+name="payouts"
+requestData="{\\"journey\\": $(decode_cbor.journey), \\"type\\": $(decode_cbor.type)}"
+]
+    status       [type="jsonparse" path="status" data="$(fetch)"]
+    payout      [type="jsonparse" path="payout" data="$(fetch)"]
+    encode_data  [type="ethabiencode" abi="(bytes32 requestId, uint256 status, uint256 payout)" data="{ \\"requestId\\": $(decode_log.requestId), \\"status\\": $(status) , \\"payout\\": $(payout)}"]
+    encode_tx    [type="ethabiencode"
+                  abi="fulfillOracleRequest2(bytes32 requestId, uint256 payment, address callbackAddress, bytes4 callbackFunctionId, uint256 expiration, bytes calldata data)"
+                  data="{\\"requestId\\": $(decode_log.requestId), \\"payment\\": $(decode_log.payment), \\"callbackAddress\\": $(decode_log.callbackAddr), \\"callbackFunctionId\\": $(decode_log.callbackFunctionId), \\"expiration\\": $(decode_log.cancelExpiration), \\"data\\": $(encode_data)}"
+                 ]
+    submit_tx    [type="ethtx" to="0x4a82D5B73f22bF09AeCBA78c206ccb858E41f4b2" data="$(encode_tx)"]
+    decode_log -> decode_cbor -> fetch 
+    fetch -> payout -> encode_data 
+    fetch -> status -> encode_data
+    encode_data -> encode_tx -> submit_tx
+"""

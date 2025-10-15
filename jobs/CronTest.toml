@@ -1,0 +1,26 @@
+type = "cron"
+schemaVersion = 1
+name = "GET > bytes32 (cron)"
+schedule = "CRON_TZ=UTC @every 1m"
+observationSource = """
+    // cron schedule above follows standard cron syntax
+
+    fetch    [type="http" method=GET url="https://min-api.cryptocompare.com/data/price?fsym=ETH&tsyms=USD"]
+    parse    [type="jsonparse" path="USD"]
+    multiply [type="multiply" times=100]
+    encode_response [type="ethabiencode"
+             abi="(uint256 data)"
+             data="{\\"data\\": $(multiply) }"] 
+
+    // abi = <function name + parameters>
+    encode_tx [type="ethabiencode"
+              abi="someFunction(bytes32 data)"
+              data="{ \\"data\\": $(encode_response) }"]
+
+    // to: <contract address>
+    submit_tx  [type="ethtx"
+               to="0xB0DB1b6Ff827F59181a13a8a4B78Ca12950B822F"
+               data="$(encode_tx)"]
+
+    fetch -> parse -> multiply -> encode_response -> encode_tx -> submit_tx
+"""
